@@ -36,11 +36,11 @@ public class Main {
                 "Information Technology"
         );
 
-        // Add students
+        // Register students
         manager.addStudent(student1);
         manager.addStudent(student2);
 
-        // Add courses
+        // Register courses
         manager.addCourse(course1);
         manager.addCourse(course2);
 
@@ -48,14 +48,23 @@ public class Main {
         manager.assignInstructor(course1, instructor1);
         manager.assignInstructor(course2, instructor2);
 
-        // Display information
-        System.out.println("===== STUDENTS =====");
-        manager.showStudents();
+        // Enroll students
+        System.out.println(" ENROLLMENT ");
 
-        System.out.println("\n===== COURSES =====");
-        manager.showCourses();
+        manager.enrollStudent(student1, course1);
+        manager.enrollStudent(student2, course1);
+        manager.enrollStudent(student1, course2);
 
-        System.out.println("\n===== INSTRUCTOR ASSIGNMENTS =====");
-        manager.showAssignments();
+        // Test duplicate enrollment
+        manager.enrollStudent(student1, course1);
+
+        // Display course rosters
+        System.out.println("COURSE ROSTERS ");
+
+        manager.showCourseRoster(course1);
+
+        System.out.println();
+
+        manager.showCourseRoster(course2);
     }
 }
