@@ -1,70 +1,270 @@
 
+import java.util.Scanner;
+import java.sql.SQLException;
+
 public class Main {
 
     public static void main(String[] args) {
 
+        Scanner input = new Scanner(System.in);
+
+        StudentDAO studentDAO = new StudentDAO();
+        CourseDAO courseDAO = new CourseDAO();
+        EnrollmentDAO enrollmentDAO = new EnrollmentDAO();
         UniversityManager manager = new UniversityManager();
 
-        // Create students
-        Student student1 = new Student(
-                1, "Alice", "alice@gmail.com",
-                "Computer Science", 3.8
-        );
+        int choice = -1;
 
-        Student student2 = new Student(
-                2, "Kevin", "kevin@gmail.com",
-                "Information Technology", 3.5
-        );
+        do {
+            System.out.println("\n===== UNIVERSITY MANAGEMENT SYSTEM =====");
+            System.out.println("1. Add Student");
+            System.out.println("2. Show Students");
+            System.out.println("3. Update Student");
+            System.out.println("4. Delete Student");
+            System.out.println("5. Add Course");
+            System.out.println("6. Show Courses");
+            System.out.println("7. Update Course");
+            System.out.println("8. Delete Course");
+            System.out.println("9. Enroll Student");
+            System.out.println("10. Show Enrollments (FULL JOIN)");
+            System.out.println("11. Update Grade");
+            System.out.println("12. Remove Enrollment");
+            System.out.println("13. Show Students Using Collections");
+            System.out.println("14. Show Courses Using Collections");
+            System.out.println("15. Show Course Roster");
+            System.out.println("0. Exit");
 
-        // Create courses
-        Course course1 = new Course(
-                201, "Java Programming", 3
-        );
+            System.out.print("Enter your choice: ");
 
-        Course course2 = new Course(
-                202, "Database Management", 4
-        );
+            if (!input.hasNextInt()) {
+                System.out.println("Please enter a number.");
+                input.nextLine();
+                continue;
+            }
 
-        // Create instructors
-        Instructor instructor1 = new Instructor(
-                101, "John", "john@gmail.com",
-                "Computer Science"
-        );
+            choice = input.nextInt();
+            input.nextLine();
 
-        Instructor instructor2 = new Instructor(
-                102, "Mary", "mary@gmail.com",
-                "Information Technology"
-        );
+            try {
 
-        // Register students
-        manager.addStudent(student1);
-        manager.addStudent(student2);
+                switch (choice) {
 
-        // Register courses
-        manager.addCourse(course1);
-        manager.addCourse(course2);
+                    case 1:
+                        System.out.print("Student name: ");
+                        String name = input.nextLine();
 
-        // Assign instructors
-        manager.assignInstructor(course1, instructor1);
-        manager.assignInstructor(course2, instructor2);
+                        System.out.print("Email: ");
+                        String email = input.nextLine();
 
-        // Enroll students
-        System.out.println(" ENROLLMENT ");
+                        System.out.print("Program: ");
+                        String program = input.nextLine();
 
-        manager.enrollStudent(student1, course1);
-        manager.enrollStudent(student2, course1);
-        manager.enrollStudent(student1, course2);
+                        System.out.print("GPA: ");
+                        double gpa = input.nextDouble();
+                        input.nextLine();
 
-        // Test duplicate enrollment
-        manager.enrollStudent(student1, course1);
+                        studentDAO.addStudent(name, email, program, gpa);
+                        break;
 
-        // Display course rosters
-        System.out.println("COURSE ROSTERS ");
+                    case 2:
+                        System.out.println("\n===== STUDENTS =====");
+                        studentDAO.showStudents();
+                        break;
 
-        manager.showCourseRoster(course1);
+                    case 3:
+                        System.out.print("Student ID: ");
+                        int studentId = input.nextInt();
+                        input.nextLine();
 
-        System.out.println();
+                        System.out.print("New program: ");
+                        String newProgram = input.nextLine();
 
-        manager.showCourseRoster(course2);
+                        System.out.print("New GPA: ");
+                        double newGpa = input.nextDouble();
+                        input.nextLine();
+
+                        studentDAO.updateStudent(studentId, newProgram, newGpa);
+                        break;
+
+                    case 4:
+                        System.out.print("Student ID to delete: ");
+                        int deleteStudentId = input.nextInt();
+                        input.nextLine();
+
+                        studentDAO.deleteStudent(deleteStudentId);
+                        break;
+
+                    case 5:
+                        System.out.print("Course name: ");
+                        String courseName = input.nextLine();
+
+                        System.out.print("Credits: ");
+                        int credits = input.nextInt();
+                        input.nextLine();
+
+                        courseDAO.addCourse(courseName, credits);
+                        break;
+
+                    case 6:
+                        System.out.println("\n===== COURSES =====");
+                        courseDAO.showCourses();
+                        break;
+
+                    case 7:
+                        System.out.print("Course ID: ");
+                        int updateCourseId = input.nextInt();
+                        input.nextLine();
+
+                        System.out.print("New course name: ");
+                        String newCourseName = input.nextLine();
+
+                        System.out.print("New credits: ");
+                        int newCredits = input.nextInt();
+                        input.nextLine();
+
+                        courseDAO.updateCourse(
+                                updateCourseId, newCourseName, newCredits);
+                        break;
+
+                    case 8:
+                        System.out.print("Course ID to delete: ");
+                        int deleteCourseId = input.nextInt();
+                        input.nextLine();
+
+                        courseDAO.deleteCourse(deleteCourseId);
+                        break;
+
+                    case 9:
+                        System.out.println("\n===== STUDENTS =====");
+                        studentDAO.showStudents();
+
+                        System.out.println("\n===== COURSES =====");
+                        courseDAO.showCourses();
+
+                        System.out.print("Student ID: ");
+                        int enrollStudentId = input.nextInt();
+
+                        System.out.print("Course ID: ");
+                        int enrollCourseId = input.nextInt();
+                        input.nextLine();
+
+                        manager.loadData();
+
+                        Student selectedStudent = null;
+                        Course selectedCourse = null;
+
+                        for (Student s : studentDAO.getStudents()) {
+                            if (s.getId() == enrollStudentId) {
+                                selectedStudent = s;
+                                break;
+                            }
+                        }
+
+                        for (Course c : courseDAO.getCourses()) {
+                            if (c.getCourseId() == enrollCourseId) {
+                                selectedCourse = c;
+                                break;
+                            }
+                        }
+
+                        if (selectedStudent != null && selectedCourse != null) {
+                            manager.enrollStudent(selectedStudent, selectedCourse);
+                        } else {
+                            System.out.println("Student or course not found.");
+                        }
+                        break;
+
+                    case 10:
+                        System.out.println("\n===== ENROLLMENTS =====");
+                        enrollmentDAO.showEnrollments();
+                        break;
+
+                    case 11:
+                        System.out.print("Student ID: ");
+                        int gradeStudentId = input.nextInt();
+
+                        System.out.print("Course ID: ");
+                        int gradeCourseId = input.nextInt();
+                        input.nextLine();
+
+                        System.out.print("Grade: ");
+                        String grade = input.nextLine();
+
+                        enrollmentDAO.updateGrade(
+                                gradeStudentId, gradeCourseId, grade);
+                        break;
+
+                    case 12:
+                        System.out.print("Student ID: ");
+                        int removeStudentId = input.nextInt();
+
+                        System.out.print("Course ID: ");
+                        int removeCourseId = input.nextInt();
+                        input.nextLine();
+
+                        enrollmentDAO.removeEnrollment(
+                                removeStudentId, removeCourseId);
+                        manager.loadData();
+                        break;
+
+                    case 13:
+                        manager.loadData();
+
+                        System.out.println("STUDENT COLLECTION ");
+                        manager.showStudents();
+                        break;
+
+                    case 14:
+                        manager.loadData();
+
+                        System.out.println(" COURSE COLLECTION ");
+                        manager.showCourses();
+                        break;
+
+                    case 15:
+                        manager.loadData();
+
+                        System.out.println(" COURSES ");
+                        courseDAO.showCourses();
+
+                        System.out.print("Enter Course ID: ");
+                        int rosterCourseId = input.nextInt();
+                        input.nextLine();
+
+                        Course rosterCourse = null;
+
+                        for (Course c : courseDAO.getCourses()) {
+                            if (c.getCourseId() == rosterCourseId) {
+                                rosterCourse = c;
+                                break;
+                            }
+                        }
+
+                        if (rosterCourse != null) {
+                            manager.showCourseRoster(rosterCourse);
+                        } else {
+                            System.out.println("Course not found.");
+                        }
+                        break;
+
+                    case 0:
+                        System.out.println("Thank you for using the system!");
+                        break;
+
+                    default:
+                        System.out.println("Invalid choice.");
+                }
+
+            } catch (SQLException e) {
+                System.out.println("Database Error: " + e.getMessage());
+
+            } catch (java.util.InputMismatchException e) {
+                System.out.println("Invalid input. Please enter the correct value.");
+                input.nextLine();
+            }
+
+        } while (choice != 0);
+
+        input.close();
     }
 }
